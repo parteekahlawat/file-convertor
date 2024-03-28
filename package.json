@@ -15,7 +15,6 @@
     "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-image-file-resizer": "^0.4.8",
     "sharp": "^0.33.3"
   },
   "devDependencies": {
