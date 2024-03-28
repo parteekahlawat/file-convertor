@@ -3,38 +3,38 @@ import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 
 export default function Dragdrop() {
-  const [pdfGenerated, setPdfGenerated] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState('');
-
-  const convertToPdf = (file) => {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const imgData = event.target.result;
-
-      // Create an image element to get image dimensions
-      const img = new Image();
-      img.onload = function() {
-        const pdf = new jsPDF();
-        const imgWidth = 210; // A4 width in mm
-        const imgHeight = img.height * imgWidth / img.width;
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-        const pdfBlob = pdf.output('blob');
-        setPdfUrl(URL.createObjectURL(pdfBlob));
-        setPdfGenerated(true);
+    const [pdfGenerated, setPdfGenerated] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string>('');
+  
+    const convertToPdf = (file: File) => { 
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        if (event.target) { 
+          const imgData = event.target.result as string; 
+          
+          const img = new Image();
+          img.onload = function() {
+            const pdf = new jsPDF();
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = img.height * imgWidth / img.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            const pdfBlob = pdf.output('blob');
+            setPdfUrl(URL.createObjectURL(pdfBlob));
+            setPdfGenerated(true);
+          };
+          img.src = imgData;
+        }
       };
-      img.src = imgData;
+      reader.readAsDataURL(file);
     };
-    reader.readAsDataURL(file);
-  };
-
-  const handleDrop = (event) => {
+  
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (!file) return;
 
-    // Check if the file is an image
     if (file.type.startsWith('image/')) {
-      // Check file size (2 MB)
+
       if (file.size <= 2 * 1024 * 1024) {
         convertToPdf(file);
       } else {
@@ -45,14 +45,14 @@ export default function Dragdrop() {
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    const file = event.target.files[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    // Check if the file is an image
+    const file = files[0];
+
     if (file.type.startsWith('image/')) {
-      // Check file size (2 MB)
       if (file.size <= 2 * 1024 * 1024) {
         convertToPdf(file);
       } else {
